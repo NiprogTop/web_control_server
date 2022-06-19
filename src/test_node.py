@@ -18,6 +18,7 @@ class Web:
             self.pud.publish(Text)
             self.rate.sleep()
 
+
 if __name__ == "__main__":
     try:
         test = Web()
