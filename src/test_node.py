@@ -1,27 +1,42 @@
-#!/usr/bin/python
+#!/usr/bin/env python
+from __future__ import print_function
+import roslib
+#roslib.load_manifest('my_package')
+import sys
 import rospy
-import std_msgs.msg
+import cv2
+from std_msgs.msg import String
+from sensor_msgs.msg import Image
+from cv_bridge import CvBridge, CvBridgeError
 
-class Web:
-    def __init__(self):
-        rospy.init_node('web_server', anonymous=True)
-        self.pud = rospy.Publisher('text_line', std_msgs.msg.String, queue_size=10)
-        self.rate = rospy.Rate(10)
+class image_converter:
 
+  def __init__(self):
+    #self.image_pub = rospy.Publisher("image_topic_2",Image, queue_size=10)
 
-    def start(ip):
-        rospy.init_node('web_server', anonymous=True)
+    self.bridge = CvBridge()
+    self.image_sub = rospy.Subscriber("image",Image,self.callback)
 
-
-    def loop(self, Text):
-        while not rospy.is_shutdown():
-            self.pud.publish(Text)
-            self.rate.sleep()
-
-
-if __name__ == "__main__":
+  def callback(self,data):
     try:
-        test = Web()
-        test.loop("Hello")
-    except rospy.ROSInterruptException:
-        pass
+        ###  обработка кадра  ###
+      cv_image = self.bridge.imgmsg_to_cv2(data, "bgr8")
+      rospy.loginfo(cv_image)
+    except CvBridgeError as e:
+      print(e)
+
+def main(args):
+    ic = image_converter()
+    rospy.init_node('image_converter', anonymous=False)
+    try:
+        rospy.spin()
+    except KeyboardInterrupt:
+        print("Shutting down")
+    cv2.destroyAllWindows()
+
+
+if __name__ == '__main__':
+    main(sys.argv)
+
+
+
